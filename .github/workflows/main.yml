@@ -38,6 +38,5 @@ jobs:
         run: |
           sleep 15
           curl -s http://127.0.0.1:4040/api/tunnels > tunnels.json
-          cat tunnels.json
           NGROK_URL=$(cat tunnels.json | grep -o 'tcp://[0-9a-zA-Z\.:]*')
-          echo "::set-output name=RDP::$NGROK_URL"
+          echo "🔗 Your RDP Address is: $NGROK_URL"
