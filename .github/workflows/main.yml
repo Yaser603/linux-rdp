@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "⏳ منتظر ngrok می‌مانیم..."
           for i in {1..10}; do
-            ADDR=$(curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[0-9a-zA-Z\.:]*')
+            ADDR=$(curl -s http://127.0.0.1:8080/api/tunnels | grep -o 'tcp://[0-9a-zA-Z\.:]*')
             if [[ ! -z "$ADDR" ]]; then
               echo "✅ ngrok آماده شد!"
               echo "🔗 Your RDP Address is: $ADDR"
