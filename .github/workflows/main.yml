@@ -26,12 +26,18 @@ jobs:
           unzip ngrok-stable-linux-amd64.zip
           sudo mv ngrok /usr/local/bin
 
+      - name: Add ngrok auth token
+        run: |
+          ngrok config add-authtoken 2vqGdFaVZlODu80KskQUJYeoCaf_4BN1H6uzxjPSEJ8zFqc5q
+
       - name: Connect ngrok
         run: |
-          ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-          nohup ngrok tcp 3389 &
+          nohup ngrok tcp 3389 > ngrok.log &
 
       - name: Show ngrok RDP address
         run: |
-          sleep 10
-          curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[0-9a-zA-Z\.:]*'
+          sleep 15
+          curl -s http://127.0.0.1:4040/api/tunnels > tunnels.json
+          cat tunnels.json
+          NGROK_URL=$(cat tunnels.json | grep -o 'tcp://[0-9a-zA-Z\.:]*')
+          echo "::set-output name=RDP::$NGROK_URL"
