@@ -1,0 +1,37 @@
+name: Free RDP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Make RDP
+    steps:
+      - name: Install XFCE and xrdp
+        run: |
+          sudo apt update
+          sudo apt install -y xfce4 xfce4-goodies xrdp
+          sudo systemctl enable xrdp
+          sudo adduser github --gecos "" --disabled-password
+          echo "github:password123" | sudo chpasswd
+          sudo usermod -aG sudo github
+          sudo chsh -s /bin/bash github
+          echo xfce4-session > ~/.xsession
+          sudo service xrdp restart
+
+      - name: Download ngrok
+        run: |
+          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-linux-amd64.zip
+          unzip ngrok-stable-linux-amd64.zip
+          sudo mv ngrok /usr/local/bin
+
+      - name: Connect ngrok
+        run: |
+          ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+          nohup ngrok tcp 3389 &
+
+      - name: Show ngrok RDP address
+        run: |
+          sleep 10
+          curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[0-9a-zA-Z\.:]*'
