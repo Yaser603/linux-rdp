@@ -30,13 +30,24 @@ jobs:
         run: |
           ngrok config add-authtoken 2vqGdFaVZlODu80KskQUJYeoCaf_4BN1H6uzxjPSEJ8zFqc5q
 
-      - name: Connect ngrok
+      - name: Start ngrok tunnel
         run: |
           nohup ngrok tcp 3389 > ngrok.log &
+          sleep 5
 
       - name: Show ngrok RDP address
         run: |
-          sleep 15
-          curl -s http://127.0.0.1:4040/api/tunnels > tunnels.json
-          NGROK_URL=$(cat tunnels.json | grep -o 'tcp://[0-9a-zA-Z\.:]*')
-          echo "🔗 Your RDP Address is: $NGROK_URL"
+          echo "⏳ منتظر ngrok می‌مانیم..."
+          for i in {1..10}; do
+            ADDR=$(curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[0-9a-zA-Z\.:]*')
+            if [[ ! -z "$ADDR" ]]; then
+              echo "✅ ngrok آماده شد!"
+              echo "🔗 Your RDP Address is: $ADDR"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "❌ ngrok آدرس را برنگرداند."
+          echo "🔍 محتویات فایل ngrok.log:"
+          cat ngrok.log
+          exit 1
